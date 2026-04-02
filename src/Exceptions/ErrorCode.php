@@ -6,6 +6,7 @@ namespace Maged\SecureMediaUpload\Exceptions;
 
 enum ErrorCode: string
 {
+
     case NO_FILE_PROVIDED = 'NO_FILE_PROVIDED';
     case UNSUPPORTED_TYPE = 'UNSUPPORTED_TYPE';
     case INVALID_EXTENSION = 'INVALID_EXTENSION';
