@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Maged\SecureMediaUpload\Exceptions;
+
+enum ErrorCode: string
+{
+    case NO_FILE_PROVIDED = 'NO_FILE_PROVIDED';
+    case UNSUPPORTED_TYPE = 'UNSUPPORTED_TYPE';
+    case INVALID_EXTENSION = 'INVALID_EXTENSION';
+    case MIME_MISMATCH = 'MIME_MISMATCH';
+    case REAL_MIME_MISMATCH = 'REAL_MIME_MISMATCH';
+    case UNSAFE_SVG_DETECTED = 'UNSAFE_SVG_DETECTED';
+    case SIZE_EXCEEDED = 'SIZE_EXCEEDED';
+    case UNREADABLE_FILE = 'UNREADABLE_FILE';
+    case STORAGE_FAILURE = 'STORAGE_FAILURE';
+    case VIDEO_METADATA_FAILURE = 'VIDEO_METADATA_FAILURE';
+}
+

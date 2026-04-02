@@ -1,0 +1,15 @@
+/vendor
+/.idea
+/.vscode
+*.log
+*.swp
+*.swo
+.env
+.env.local
+.phpunit.result.cache
+.coverage
+coverage/
+composer.lock
+dist/
+build/
+

@@ -1,0 +1,9 @@
+<?php
+
+return [
+    'testbench' => [
+        'laravel' => env('LARAVEL_VERSION', '13'),
+    ],
+];
+
+?>
