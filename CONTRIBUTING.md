@@ -5,7 +5,7 @@ Thanks for considering a contribution! Please follow these guidelines:
 ## Setup
 
 ```bash
-git clone git@github.com:maged/secure-media-upload.git
+git clone git@github.com:maged-hamed/secure-media-upload.git
 cd secure-media-upload
 composer install
 ```
