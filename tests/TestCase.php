@@ -24,7 +24,6 @@ abstract class TestCase extends BaseTestCase
             'visibility' => 'private',
         ]);
 
-        $app['config']->set('secure-media-upload', require __DIR__ . '/../../config/secure-media-upload.php');
+        $app['config']->set('secure-media-upload', require __DIR__ . '/../config/secure-media-upload.php');
     }
 }
-

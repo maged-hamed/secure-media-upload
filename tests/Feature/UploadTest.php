@@ -7,7 +7,7 @@ namespace Maged\SecureMediaUpload\Tests\Feature;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Maged\SecureMediaUpload\SecureMediaUploader;
-use Orchestra\Testbench\TestCase;
+use Maged\SecureMediaUpload\Tests\TestCase;
 
 class UploadTest extends TestCase
 {
@@ -50,12 +50,12 @@ class UploadTest extends TestCase
 
     public function test_uploads_pdf_document(): void
     {
-        $file = UploadedFile::fake()->create('document.pdf', 500);
+        $file = $this->createPdfUpload('document.pdf');
 
         $result = $this->uploader->secureFileUpload($file, 'document', 'uploads/docs', 'testing');
 
         $this->assertEquals('pdf', $result->extension);
-        $this->assertStringContainsString('document', $result->mimeType);
+        $this->assertEquals('application/pdf', $result->mimeType);
     }
 
     public function test_result_can_be_converted_to_array(): void
@@ -84,5 +84,18 @@ class UploadTest extends TestCase
         $this->assertEquals($original->name, $reconstructed->name);
         $this->assertEquals($original->mimeType, $reconstructed->mimeType);
     }
-}
 
+    private function createPdfUpload(string $name): UploadedFile
+    {
+        $path = tempnam(sys_get_temp_dir(), 'pdf_');
+        file_put_contents($path, "%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF");
+
+        return new UploadedFile(
+            $path,
+            $name,
+            'application/pdf',
+            null,
+            true
+        );
+    }
+}

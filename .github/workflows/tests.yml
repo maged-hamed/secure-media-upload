@@ -26,12 +26,10 @@ jobs:
           coverage: pcov
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
-        working-directory: packages/secure-media-upload
+        run: composer install --prefer-dist --no-progress
 
       - name: Run tests
         run: ./vendor/bin/phpunit --coverage-text
-        working-directory: packages/secure-media-upload
 
   lint:
     runs-on: ubuntu-latest
@@ -45,20 +43,16 @@ jobs:
           php-version: '8.3'
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
-        working-directory: packages/secure-media-upload
+        run: composer install --prefer-dist --no-progress
 
       - name: Run Pint
         run: |
           composer require --dev laravel/pint
           ./vendor/bin/pint --test
-        working-directory: packages/secure-media-upload
         continue-on-error: true
 
       - name: Run PHPStan
         run: |
           composer require --dev phpstan/phpstan
           ./vendor/bin/phpstan analyse src
-        working-directory: packages/secure-media-upload
         continue-on-error: true
-

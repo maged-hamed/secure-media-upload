@@ -10,6 +10,7 @@ final readonly class UploadResult
         public string $path,
         public string $url,
         public string $name,
+        public string $extension,
         public string $originalName,
         public string $mimeType,
         public int $sizeBytes,
@@ -24,6 +25,7 @@ final readonly class UploadResult
             'path' => $this->path,
             'url' => $this->url,
             'name' => $this->name,
+            'extension' => $this->extension,
             'original_name' => $this->originalName,
             'mime_type' => $this->mimeType,
             'size_bytes' => $this->sizeBytes,
@@ -38,6 +40,7 @@ final readonly class UploadResult
             path: $data['path'],
             url: $data['url'],
             name: $data['name'],
+            extension: $data['extension'] ?? strtolower((string) pathinfo((string) $data['name'], PATHINFO_EXTENSION)),
             originalName: $data['original_name'],
             mimeType: $data['mime_type'],
             sizeBytes: $data['size_bytes'],
@@ -46,4 +49,3 @@ final readonly class UploadResult
         );
     }
 }
-

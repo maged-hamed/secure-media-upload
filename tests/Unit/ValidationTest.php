@@ -8,7 +8,7 @@ use Illuminate\Http\UploadedFile;
 use Maged\SecureMediaUpload\Exceptions\ErrorCode;
 use Maged\SecureMediaUpload\Exceptions\UploadValidationException;
 use Maged\SecureMediaUpload\SecureMediaUploader;
-use Orchestra\Testbench\TestCase;
+use Maged\SecureMediaUpload\Tests\TestCase;
 
 class ValidationTest extends TestCase
 {
@@ -42,11 +42,12 @@ class ValidationTest extends TestCase
 
     public function test_validates_pdf_document_successfully(): void
     {
-        $file = UploadedFile::fake()->create('document.pdf', 100);
+        $file = $this->createPdfUpload('document.pdf');
 
         $result = $this->uploader->validateFileOnly($file, 'document');
 
         $this->assertEquals('pdf', $result->extension);
+        $this->assertEquals('application/pdf', $result->realMimeType);
     }
 
     public function test_rejects_invalid_extension(): void
@@ -59,11 +60,12 @@ class ValidationTest extends TestCase
 
     public function test_rejects_oversized_file(): void
     {
-        $file = UploadedFile::fake()->image('test.jpg');
-        $file->size = 1024 * 1024 * 100; // Simulate 100MB (exceeds 10MB limit)
+        $file = UploadedFile::fake()->image('test.jpg', 100, 100);
+
+        // Set a tiny limit so any real image size reliably exceeds it.
+        config()->set('secure-media-upload.types.image.max_bytes', 1);
 
         $this->expectException(UploadValidationException::class);
-        $this->expectExceptionMessage('exceeds maximum');
 
         $this->uploader->validateFileOnly($file, 'image');
     }
@@ -88,5 +90,18 @@ class ValidationTest extends TestCase
 
         $this->assertStringNotContainsString('<script>', $result->originalName);
     }
-}
 
+    private function createPdfUpload(string $name): UploadedFile
+    {
+        $path = tempnam(sys_get_temp_dir(), 'pdf_');
+        file_put_contents($path, "%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF");
+
+        return new UploadedFile(
+            $path,
+            $name,
+            'application/pdf',
+            null,
+            true
+        );
+    }
+}

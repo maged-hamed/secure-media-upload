@@ -1,6 +1,6 @@
 # Secure Media Upload
 
-[![Tests](https://github.com/maged/secure-media-upload/workflows/Tests/badge.svg)](https://github.com/maged/secure-media-upload/actions)
+[![Tests](https://github.com/maged-hamed/secure-media-upload/workflows/Tests/badge.svg)](https://github.com/maged-hamed/secure-media-upload/actions)
 
 Secure, configurable file uploads for Laravel with strict server-side validation, private-by-default storage, and local/S3 support.
 
@@ -16,14 +16,14 @@ Secure, configurable file uploads for Laravel with strict server-side validation
 
 ## Installation
 
-From GitHub:
+Add to your `composer.json`:
 
 ```json
 {
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/maged/secure-media-upload.git"
+      "url": "https://github.com/maged-hamed/secure-media-upload.git"
     }
   ],
   "require": {
@@ -55,8 +55,24 @@ $result = app(SecureMediaUploader::class)->secureFileUpload(
 
 echo $result->path;        // uploads/images/ulid_image.jpg
 echo $result->url;         // https://s3.../uploads/images/ulid_image.jpg
+echo $result->extension;   // jpg
 echo $result->mimeType;    // image/jpeg
 echo $result->sizeBytes;   // 12345
+```
+
+### Using the Facade
+
+```php
+use Maged\SecureMediaUpload\Facades\SecureMediaUpload;
+
+$result = SecureMediaUpload::secureFileUpload($request->file('file'), 'image');
+```
+
+### Backward-Compatible Helpers
+
+```php
+$result = secureFileUpload($request->file('file'), 'image');
+// Returns array: ['path', 'url', 'name', 'original_name', 'mime', 'size', 'duration']
 ```
 
 ### Error Handling
@@ -72,32 +88,67 @@ try {
 }
 ```
 
+## Supported File Types
+
+| Type | Max Size | Extensions |
+|------|----------|-----------|
+| image | 10 MB | jpg, jpeg, png, gif, webp, svg |
+| video | 250 MB | mp4, mov, avi |
+| document | 25 MB | pdf, doc, docx, txt, rtf |
+| excel | 20 MB | xls, xlsx, csv |
+| audio | 30 MB | mp3, wav, ogg, m4a |
+| compressed | 200 MB | zip, rar, 7z, gz, tar |
+
 ## Error Codes
 
-- `UNSUPPORTED_TYPE` - File type not allowed
-- `INVALID_EXTENSION` - Extension not in whitelist
-- `MIME_MISMATCH` - Client MIME rejected
-- `REAL_MIME_MISMATCH` - Actual file MIME rejected
-- `UNSAFE_SVG_DETECTED` - SVG has dangerous patterns
-- `SIZE_EXCEEDED` - File too large
-- `UNREADABLE_FILE` - Temp file inaccessible
-- `STORAGE_FAILURE` - Upload to disk failed
+| Code | Meaning |
+|------|---------|
+| `UNSUPPORTED_TYPE` | File type not in allow-list |
+| `INVALID_EXTENSION` | Extension rejected |
+| `MIME_MISMATCH` | Client MIME rejected |
+| `REAL_MIME_MISMATCH` | Actual file content MIME rejected |
+| `UNSAFE_SVG_DETECTED` | SVG contains script/event/url patterns |
+| `SIZE_EXCEEDED` | File too large |
+| `UNREADABLE_FILE` | Temp file inaccessible |
+| `STORAGE_FAILURE` | Upload to disk failed |
 
 ## Configuration
+
+Publish the config file:
 
 ```bash
 php artisan vendor:publish --tag=secure-media-upload-config
 ```
 
-Edit `config/secure-media-upload.php` to customize allowed types, sizes, and storage disk.
+Set the storage disk in `.env`:
+
+```env
+# Local disk
+FILESYSTEM_DISK=local
+
+# AWS S3
+FILESYSTEM_DISK=s3
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=your-bucket
+```
 
 ## Testing
 
 ```bash
-composer test
+composer install
+./vendor/bin/phpunit
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-MIT
-
+MIT — see [LICENSE](LICENSE).

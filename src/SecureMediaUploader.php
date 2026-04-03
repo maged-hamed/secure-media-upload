@@ -14,7 +14,6 @@ use Maged\SecureMediaUpload\Exceptions\UploadValidationException;
 use Maged\SecureMediaUpload\Results\UploadResult;
 use Maged\SecureMediaUpload\Results\ValidationResult;
 use Maged\SecureMediaUpload\Support\SvgSafetyScanner;
-use RuntimeException;
 
 class SecureMediaUploader
 {
@@ -101,6 +100,7 @@ class SecureMediaUploader
             path: $storedPath,
             url: $this->storageFileUrl($storedPath, $targetDisk) ?? $storedPath,
             name: $fileName,
+            extension: $info->extension,
             originalName: $info->originalName,
             mimeType: $info->realMimeType,
             sizeBytes: $info->sizeBytes,
@@ -152,7 +152,7 @@ class SecureMediaUploader
         $allowed = $types[$type] ?? null;
 
         if (!is_array($allowed)) {
-            throw new UploadValidationException('Unsupported file type.');
+            throw UploadValidationException::unsupportedType($type);
         }
 
         return $allowed;

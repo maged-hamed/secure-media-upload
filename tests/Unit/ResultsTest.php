@@ -33,6 +33,7 @@ class ResultsTest extends TestCase
             path: 'uploads/images/abc123_image.jpg',
             url: 'https://storage.example.com/uploads/images/abc123_image.jpg',
             name: 'abc123_image.jpg',
+            extension: 'jpg',
             originalName: 'photo.jpg',
             mimeType: 'image/jpeg',
             sizeBytes: 5120,
@@ -45,6 +46,7 @@ class ResultsTest extends TestCase
         $this->assertEquals('uploads/images/abc123_image.jpg', $array['path']);
         $this->assertEquals('photo.jpg', $array['original_name']);
         $this->assertEquals(5120, $array['size_bytes']);
+        $this->assertEquals('jpg', $array['extension']);
         $this->assertEquals('abc123def456', $array['hash']);
     }
 
@@ -54,6 +56,7 @@ class ResultsTest extends TestCase
             'path' => 'uploads/images/abc123_image.jpg',
             'url' => 'https://storage.example.com/uploads/images/abc123_image.jpg',
             'name' => 'abc123_image.jpg',
+            'extension' => 'jpg',
             'original_name' => 'photo.jpg',
             'mime_type' => 'image/jpeg',
             'size_bytes' => 5120,
@@ -65,7 +68,7 @@ class ResultsTest extends TestCase
 
         $this->assertEquals('uploads/images/abc123_image.jpg', $result->path);
         $this->assertEquals('photo.jpg', $result->originalName);
+        $this->assertEquals('jpg', $result->extension);
         $this->assertEquals('abc123def456', $result->hash);
     }
 }
-
