@@ -58,6 +58,7 @@ echo $result->url;         // https://s3.../uploads/images/ulid_image.jpg
 echo $result->extension;   // jpg
 echo $result->mimeType;    // image/jpeg
 echo $result->sizeBytes;   // 12345
+echo $result->hash;        // sha256 hash (default)
 ```
 
 ### Using the Facade
@@ -132,6 +133,9 @@ AWS_ACCESS_KEY_ID=...
 AWS_SECRET_ACCESS_KEY=...
 AWS_DEFAULT_REGION=us-east-1
 AWS_BUCKET=your-bucket
+
+# Optional: disable or change file hash algorithm
+# SECURE_MEDIA_HASH_ALGORITHM=sha256
 ```
 
 ## Testing

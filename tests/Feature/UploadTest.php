@@ -35,6 +35,21 @@ class UploadTest extends TestCase
         $this->assertNotEmpty($result->name);
         $this->assertEquals('jpg', $result->extension);
         $this->assertGreaterThan(0, $result->sizeBytes);
+        $this->assertNotNull($result->hash);
+        $this->assertSame(
+            hash_file('sha256', Storage::disk('testing')->path($result->path)),
+            $result->hash
+        );
+    }
+
+    public function test_can_disable_hash_generation_via_config(): void
+    {
+        config()->set('secure-media-upload.hash_algorithm', '');
+
+        $file = UploadedFile::fake()->image('photo.jpg', 100, 100);
+        $result = $this->uploader->secureFileUpload($file, 'image', 'uploads/images', 'testing');
+
+        $this->assertNull($result->hash);
     }
 
     public function test_generates_random_filename(): void

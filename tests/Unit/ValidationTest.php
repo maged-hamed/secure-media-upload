@@ -58,6 +58,29 @@ class ValidationTest extends TestCase
         $this->uploader->validateFileOnly($file, 'image');
     }
 
+    public function test_rejects_invalid_client_mime_with_mime_mismatch_error_code(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'txt_');
+        file_put_contents($path, 'plain text content');
+
+        $file = new UploadedFile(
+            $path,
+            'test.jpg',
+            'text/plain',
+            null,
+            true
+        );
+
+        try {
+            $this->uploader->validateFileOnly($file, 'image');
+            $this->fail('Expected UploadValidationException was not thrown.');
+        } catch (UploadValidationException $e) {
+            $this->assertSame(ErrorCode::MIME_MISMATCH, $e->errorCode);
+        } finally {
+            @unlink($path);
+        }
+    }
+
     public function test_rejects_oversized_file(): void
     {
         $file = UploadedFile::fake()->image('test.jpg', 100, 100);

@@ -49,7 +49,7 @@ class SecureMediaUploader
         }
 
         if (!in_array($mime, $allowed['mime_types'], true)) {
-            throw UploadValidationException::mimeMismatch($mime, $mime);
+            throw UploadValidationException::mimeMismatch($mime, $allowed['mime_types']);
         }
 
         $realMime = (string) (new finfo(FILEINFO_MIME_TYPE))->file($realPath);
@@ -105,7 +105,7 @@ class SecureMediaUploader
             mimeType: $info->realMimeType,
             sizeBytes: $info->sizeBytes,
             duration: $type === 'video' ? $this->resolveVideoDuration($file) : null,
-            hash: null,
+            hash: $this->resolveFileHash($file),
         );
     }
 
@@ -181,6 +181,28 @@ class SecureMediaUploader
             logger()->warning('Failed to extract video duration: ' . $e->getMessage());
             return null;
         }
+    }
+
+    private function resolveFileHash(UploadedFile $file): ?string
+    {
+        $algorithm = (string) config('secure-media-upload.hash_algorithm', 'sha256');
+
+        if ($algorithm === '') {
+            return null;
+        }
+
+        if (!in_array($algorithm, hash_algos(), true)) {
+            return null;
+        }
+
+        $path = $file->getRealPath();
+        if ($path === false) {
+            return null;
+        }
+
+        $hash = hash_file($algorithm, $path);
+
+        return is_string($hash) ? $hash : null;
     }
 }
 

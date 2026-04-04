@@ -30,10 +30,10 @@ class UploadValidationException extends RuntimeException
         );
     }
 
-    public static function mimeMismatch(string $clientMime, string $actual): self
+    public static function mimeMismatch(string $providedMime, array $allowed): self
     {
         return new self(
-            "MIME type mismatch: got '{$actual}', expected '{$clientMime}'",
+            "MIME type '{$providedMime}' not in allow-list: " . implode(', ', $allowed),
             ErrorCode::MIME_MISMATCH
         );
     }

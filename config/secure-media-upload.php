@@ -5,6 +5,8 @@ declare(strict_types=1);
 return [
     'default_disk' => env('SECURE_MEDIA_UPLOAD_DISK', env('FILESYSTEM_DISK', 'local')),
 
+    'hash_algorithm' => env('SECURE_MEDIA_HASH_ALGORITHM', 'sha256'),
+
     'temporary_url_ttl' => (int) env('SECURE_MEDIA_TEMP_URL_TTL', 60),
 
     'types' => [

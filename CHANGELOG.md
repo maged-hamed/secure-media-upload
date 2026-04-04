@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- SHA-256 file hashing in `UploadResult` (configurable via `SECURE_MEDIA_HASH_ALGORITHM`)
+
+### Fixed
+
+- Corrected client MIME mismatch handling and messaging during validation
+
 ## [0.1.0] - 2026-04-02
 
 ### Added
