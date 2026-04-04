@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Maged\SecureMediaUpload;
 
 use Illuminate\Support\ServiceProvider;
+use Maged\SecureMediaUpload\Contracts\MultipartSessionManager;
 use Maged\SecureMediaUpload\Contracts\PostUploadProcessor;
 use Maged\SecureMediaUpload\Processing\NullPostUploadProcessor;
 use Maged\SecureMediaUpload\Processing\PostUploadPipeline;
+use Maged\SecureMediaUpload\Storage\S3MultipartSessionManager;
 
 class MediaUploadServiceProvider extends ServiceProvider
 {
@@ -32,8 +34,15 @@ class MediaUploadServiceProvider extends ServiceProvider
             return new PostUploadPipeline($app->make(PostUploadProcessor::class));
         });
 
+        $this->app->singleton(MultipartSessionManager::class, function () {
+            return new S3MultipartSessionManager();
+        });
+
         $this->app->singleton(SecureMediaUploader::class, function ($app) {
-            return new SecureMediaUploader($app->make(PostUploadPipeline::class));
+            return new SecureMediaUploader(
+                $app->make(PostUploadPipeline::class),
+                $app->make(MultipartSessionManager::class),
+            );
         });
         $this->app->alias(SecureMediaUploader::class, 'secure-media-upload');
     }

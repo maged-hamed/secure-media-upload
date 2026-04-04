@@ -89,6 +89,31 @@ try {
 }
 ```
 
+### Direct-to-S3 Multipart Upload Sessions
+
+```php
+$uploader = app(SecureMediaUploader::class);
+
+$session = $uploader->startUploadSession(
+    key: 'uploads/videos/big-file.mp4',
+    contentType: 'video/mp4'
+);
+
+$part1 = $uploader->signUploadPart($session->uploadId, $session->key, 1);
+// Upload part bytes to $part1->url from your client.
+
+$completed = $uploader->completeUploadSession(
+    uploadId: $session->uploadId,
+    key: $session->key,
+    parts: [
+        ['part_number' => 1, 'e_tag' => '"etag-from-s3"'],
+    ]
+);
+
+// If needed:
+// $uploader->abortUploadSession($session->uploadId, $session->key);
+```
+
 ## Supported File Types
 
 | Type | Max Size | Extensions |
@@ -142,6 +167,10 @@ AWS_BUCKET=your-bucket
 # SECURE_MEDIA_POST_UPLOAD_DISPATCH=sync # or queue
 # SECURE_MEDIA_POST_UPLOAD_QUEUE_CONNECTION=redis
 # SECURE_MEDIA_POST_UPLOAD_QUEUE=media-processing
+
+# Multipart session API defaults
+# SECURE_MEDIA_MULTIPART_DISK=s3
+# SECURE_MEDIA_MULTIPART_PART_TTL=15
 ```
 
 `post_upload.processor` defaults to a no-op processor. Set it to a class that implements `Maged\SecureMediaUpload\Contracts\PostUploadProcessor` to run custom logic after successful uploads.

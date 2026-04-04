@@ -10,8 +10,12 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Maged\SecureMediaUpload\Contracts\MultipartSessionManager;
 use Maged\SecureMediaUpload\Exceptions\UploadValidationException;
 use Maged\SecureMediaUpload\Processing\PostUploadPipeline;
+use Maged\SecureMediaUpload\Results\MultipartUploadCompleteResult;
+use Maged\SecureMediaUpload\Results\MultipartUploadPartResult;
+use Maged\SecureMediaUpload\Results\MultipartUploadSessionResult;
 use Maged\SecureMediaUpload\Results\UploadResult;
 use Maged\SecureMediaUpload\Results\ValidationResult;
 use Maged\SecureMediaUpload\Support\SvgSafetyScanner;
@@ -20,7 +24,69 @@ class SecureMediaUploader
 {
     public function __construct(
         private readonly ?PostUploadPipeline $postUploadPipeline = null,
+        private readonly ?MultipartSessionManager $multipartSessionManager = null,
     ) {
+    }
+
+    public function startUploadSession(
+        string $key,
+        string $contentType,
+        ?string $disk = null,
+        array $metadata = [],
+    ): MultipartUploadSessionResult {
+        $targetDisk = $this->multipartDisk($disk);
+
+        return $this->multipartManager()->startSession($targetDisk, $key, $contentType, $metadata);
+    }
+
+    public function signUploadPart(
+        string $uploadId,
+        string $key,
+        int $partNumber,
+        ?string $disk = null,
+        ?int $ttlMinutes = null,
+    ): MultipartUploadPartResult {
+        if ($partNumber < 1 || $partNumber > 10000) {
+            throw new InvalidArgumentException('Part number must be between 1 and 10000.');
+        }
+
+        $targetDisk = $this->multipartDisk($disk);
+
+        return $this->multipartManager()->signPart(
+            $targetDisk,
+            $key,
+            $uploadId,
+            $partNumber,
+            $ttlMinutes,
+        );
+    }
+
+    /**
+     * @param array<int,array{part_number:int,e_tag:string}> $parts
+     */
+    public function completeUploadSession(
+        string $uploadId,
+        string $key,
+        array $parts,
+        ?string $disk = null,
+    ): MultipartUploadCompleteResult {
+        if ($parts === []) {
+            throw new InvalidArgumentException('At least one uploaded part must be provided.');
+        }
+
+        $targetDisk = $this->multipartDisk($disk);
+
+        return $this->multipartManager()->completeSession($targetDisk, $key, $uploadId, $parts);
+    }
+
+    public function abortUploadSession(
+        string $uploadId,
+        string $key,
+        ?string $disk = null,
+    ): bool {
+        $targetDisk = $this->multipartDisk($disk);
+
+        return $this->multipartManager()->abortSession($targetDisk, $key, $uploadId);
     }
 
     /**
@@ -226,6 +292,20 @@ class SecureMediaUploader
         } catch (\Throwable) {
             return null;
         }
+    }
+
+    private function multipartDisk(?string $disk): string
+    {
+        return $disk ?: (string) config('secure-media-upload.multipart.default_disk', 's3');
+    }
+
+    private function multipartManager(): MultipartSessionManager
+    {
+        if ($this->multipartSessionManager instanceof MultipartSessionManager) {
+            return $this->multipartSessionManager;
+        }
+
+        return app(MultipartSessionManager::class);
     }
 }
 

@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - SHA-256 file hashing in `UploadResult` (configurable via `SECURE_MEDIA_HASH_ALGORITHM`)
 - Optional post-upload processing pipeline with sync/queue dispatch modes
+- Direct-to-S3 multipart session APIs (`startUploadSession`, `signUploadPart`, `completeUploadSession`, `abortUploadSession`)
 
 ### Fixed
 

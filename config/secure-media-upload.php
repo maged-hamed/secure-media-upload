@@ -19,6 +19,11 @@ return [
 
     'temporary_url_ttl' => (int) env('SECURE_MEDIA_TEMP_URL_TTL', 60),
 
+    'multipart' => [
+        'default_disk' => env('SECURE_MEDIA_MULTIPART_DISK', 's3'),
+        'part_ttl_minutes' => (int) env('SECURE_MEDIA_MULTIPART_PART_TTL', 15),
+    ],
+
     'types' => [
         'image' => [
             'extensions' => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'],
