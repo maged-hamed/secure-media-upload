@@ -7,6 +7,16 @@ return [
 
     'hash_algorithm' => env('SECURE_MEDIA_HASH_ALGORITHM', 'sha256'),
 
+    'post_upload' => [
+        'enabled' => (bool) env('SECURE_MEDIA_POST_UPLOAD_ENABLED', false),
+        'dispatch' => env('SECURE_MEDIA_POST_UPLOAD_DISPATCH', 'sync'),
+        'processor' => \Maged\SecureMediaUpload\Processing\NullPostUploadProcessor::class,
+        'queue_connection' => env('SECURE_MEDIA_POST_UPLOAD_QUEUE_CONNECTION'),
+        'queue' => env('SECURE_MEDIA_POST_UPLOAD_QUEUE'),
+        'types' => [],
+        'fail_on_error' => (bool) env('SECURE_MEDIA_POST_UPLOAD_FAIL_ON_ERROR', false),
+    ],
+
     'temporary_url_ttl' => (int) env('SECURE_MEDIA_TEMP_URL_TTL', 60),
 
     'types' => [

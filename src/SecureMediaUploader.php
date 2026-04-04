@@ -11,12 +11,18 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Maged\SecureMediaUpload\Exceptions\UploadValidationException;
+use Maged\SecureMediaUpload\Processing\PostUploadPipeline;
 use Maged\SecureMediaUpload\Results\UploadResult;
 use Maged\SecureMediaUpload\Results\ValidationResult;
 use Maged\SecureMediaUpload\Support\SvgSafetyScanner;
 
 class SecureMediaUploader
 {
+    public function __construct(
+        private readonly ?PostUploadPipeline $postUploadPipeline = null,
+    ) {
+    }
+
     /**
      * Validate an uploaded file against package type policies.
      */
@@ -96,7 +102,7 @@ class SecureMediaUploader
             throw UploadValidationException::storageFailure($targetDisk);
         }
 
-        return new UploadResult(
+        $result = new UploadResult(
             path: $storedPath,
             url: $this->storageFileUrl($storedPath, $targetDisk) ?? $storedPath,
             name: $fileName,
@@ -107,6 +113,10 @@ class SecureMediaUploader
             duration: $type === 'video' ? $this->resolveVideoDuration($file) : null,
             hash: $this->resolveFileHash($file),
         );
+
+        $this->pipeline()?->dispatch($result, $type, $targetDisk);
+
+        return $result;
     }
 
     public function storageDiskPath(string $path, string $disk = 's3'): string
@@ -203,6 +213,19 @@ class SecureMediaUploader
         $hash = hash_file($algorithm, $path);
 
         return is_string($hash) ? $hash : null;
+    }
+
+    private function pipeline(): ?PostUploadPipeline
+    {
+        if ($this->postUploadPipeline instanceof PostUploadPipeline) {
+            return $this->postUploadPipeline;
+        }
+
+        try {
+            return app(PostUploadPipeline::class);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }
 

@@ -7,6 +7,7 @@ namespace Maged\SecureMediaUpload\Tests\Feature;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Maged\SecureMediaUpload\SecureMediaUploader;
+use Maged\SecureMediaUpload\Tests\Fixtures\SpyPostUploadProcessor;
 use Maged\SecureMediaUpload\Tests\TestCase;
 
 class UploadTest extends TestCase
@@ -18,6 +19,7 @@ class UploadTest extends TestCase
         parent::setUp();
         $this->uploader = new SecureMediaUploader();
         Storage::fake('testing');
+        SpyPostUploadProcessor::reset();
     }
 
     protected function getPackageProviders($app): array
@@ -50,6 +52,19 @@ class UploadTest extends TestCase
         $result = $this->uploader->secureFileUpload($file, 'image', 'uploads/images', 'testing');
 
         $this->assertNull($result->hash);
+    }
+
+    public function test_invokes_sync_post_upload_processor_when_enabled(): void
+    {
+        config()->set('secure-media-upload.post_upload.enabled', true);
+        config()->set('secure-media-upload.post_upload.dispatch', 'sync');
+        config()->set('secure-media-upload.post_upload.processor', SpyPostUploadProcessor::class);
+
+        $file = UploadedFile::fake()->image('photo.jpg', 100, 100);
+        $this->uploader->secureFileUpload($file, 'image', 'uploads/images', 'testing');
+
+        $this->assertCount(1, SpyPostUploadProcessor::$calls);
+        $this->assertSame('image', SpyPostUploadProcessor::$calls[0]['context']['type']);
     }
 
     public function test_generates_random_filename(): void

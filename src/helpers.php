@@ -23,7 +23,7 @@ if (!function_exists('secureFileUpload')) {
      * Backward-compatible helper that validates and stores files securely.
      * Returns array for BC or can be type-hinted to UploadResult.
      *
-     * @return array{path:string,url:string,name:string,original_name:string,mime:string,size:int,duration:float|int|null}
+     * @return array{path:string,url:string,name:string,original_name:string,mime:string,size:int,duration:float|int|null,hash:?string}
      */
     function secureFileUpload(
         mixed $file,
@@ -40,6 +40,7 @@ if (!function_exists('secureFileUpload')) {
             'mime' => $result->mimeType,
             'size' => $result->sizeBytes,
             'duration' => $result->duration,
+            'hash' => $result->hash,
         ];
     }
 }

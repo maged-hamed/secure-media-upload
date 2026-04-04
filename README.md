@@ -136,7 +136,15 @@ AWS_BUCKET=your-bucket
 
 # Optional: disable or change file hash algorithm
 # SECURE_MEDIA_HASH_ALGORITHM=sha256
+
+# Optional: post-upload processing pipeline
+# SECURE_MEDIA_POST_UPLOAD_ENABLED=true
+# SECURE_MEDIA_POST_UPLOAD_DISPATCH=sync # or queue
+# SECURE_MEDIA_POST_UPLOAD_QUEUE_CONNECTION=redis
+# SECURE_MEDIA_POST_UPLOAD_QUEUE=media-processing
 ```
+
+`post_upload.processor` defaults to a no-op processor. Set it to a class that implements `Maged\SecureMediaUpload\Contracts\PostUploadProcessor` to run custom logic after successful uploads.
 
 ## Testing
 
